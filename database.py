@@ -11,13 +11,14 @@ def salvar_json(caminho, dados):
 
 
 def carregar_ativos():
-    return carregar_json("ativos.json")
+    return carregar_json("/home/fmarques/Documentos/projeto_crud/data/ativos.json")
 
 def salvar_ativos(ativos):
-    salvar_json("ativos.json", ativos)
+    salvar_json("/home/fmarques/Documentos/projeto_crud/data/ativos.json", ativos)
 
 def carregar_vulnerabilidades():
-    return carregar_json("vulnerabilidades.json")
+    return carregar_json("/home/fmarques/Documentos/projeto_crud/data/vulnerabilidades.json")
 
 def salvar_vulnerabilidades(vulnerabilidades):
-    salvar_json("vulnerabilidades.json", vulnerabilidades)
+    salvar_json("/home/fmarques/Documentos/projeto_crud/data/vulnerabilidades.json", vulnerabilidades)
+

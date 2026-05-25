@@ -1,4 +1,4 @@
-from projeto_crud.database import carregar_ativos
+from database import carregar_ativos
 from services import criar_ativo, listar_ativos, consultar_ativo_por_id
 
 def exibição_menu():
@@ -44,7 +44,7 @@ while True:
             print(f"ID: {ativo['id']}, Tipo: {ativo['tipo']}, Descrição: {ativo['descricao']}, Localização: {ativo['localizacao']}, Responsável: {ativo['responsavel']}, Nome: {ativo['nome']}")
         else:
             print("Ativo não encontrado.")
-            
+
     elif escolha == "0":
         print("Saindo do sistema. Até logo!")
         break
