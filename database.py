@@ -11,17 +11,13 @@ def salvar_json(caminho, dados):
 
 
 def carregar_ativos():
-    # Lógica para carregar ativos do banco de dados
-    pass    
+    return carregar_json("ativos.json")
 
 def salvar_ativos(ativos):
-    # Lógica para salvar ativos no banco de dados
-    pass
+    salvar_json("ativos.json", ativos)
 
 def carregar_vulnerabilidades():
-    # Lógica para carregar vulnerabilidades do banco de dados
-    pass
+    return carregar_json("vulnerabilidades.json")
 
 def salvar_vulnerabilidades(vulnerabilidades):
-    # Lógica para salvar vulnerabilidades no banco de dados
-    pass
+    salvar_json("vulnerabilidades.json", vulnerabilidades)
