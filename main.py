@@ -1,5 +1,5 @@
 from database import carregar_ativos
-from services import criar_ativo, listar_ativos, consultar_ativo_por_id
+from services import criar_vulnerabilidade, atualizar_ativo, criar_ativo, listar_ativos, consultar_ativo_por_id, remover_ativo
 
 def exibição_menu():
     print("\n -- SISTEMA DE INVENTÁRIO --")
@@ -26,13 +26,18 @@ while True:
         
     elif escolha == "3":
         print("Opção 3 selecionada: Atualizar ativo")
-        # Lógica para atualizar ativo
+        id_ativo = int(input("Digite o ID do ativo: "))
+        atualizar_ativo(carregar_ativos(), id_ativo)
+
     elif escolha == "4":
         print("Opção 4 selecionada: Excluir ativo")
-        # Lógica para excluir ativo
+        id_ativo = int(input("Digite o ID do ativo: "))
+        remover_ativo(carregar_ativos(), id_ativo)
+
     elif escolha == "5":
         print("Opção 5 selecionada: Cadastrar vulnerabilidade")
-        # Lógica para cadastrar vulnerabilidade
+        id_ativo = int(input("Digite o ID do ativo: "))
+        criar_vulnerabilidade(carregar_ativos(), id_ativo) 
     elif escolha == "6":
         print("Opção 6 selecionada: Listar vulnerabilidades")
 
