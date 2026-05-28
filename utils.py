@@ -1,4 +1,4 @@
-from models import TipoAtivo , Severidade, StatusVulnerabilidade
+from models import TipoAtivo , Severidade
 
 
 def ler_inteiro(mensagem):
