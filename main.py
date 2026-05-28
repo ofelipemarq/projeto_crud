@@ -1,5 +1,5 @@
 from database import carregar_ativos
-from services import criar_ativo, listar_ativos, consultar_ativo_por_id
+from services import atualizar_ativo_por_fluxo, exibir_vulnerabilidades_por_ativo, criar_vulnerabilidade_por_fluxo, atualizar_ativo, criar_ativo, exibir_ativo_por_id, listar_ativos, consultar_ativo_por_id, remover_ativo, remover_ativo_por_fluxo
 
 def exibição_menu():
     print("\n -- SISTEMA DE INVENTÁRIO --")
@@ -7,8 +7,8 @@ def exibição_menu():
     print("2. Listar ativos")
     print("3. Atualizar ativo")
     print("4. Excluir ativo")
-    print ("5. Cadastrar vulnerabilidade")
-    print("6. Listar vulnerabilidades")
+    print("5. Cadastrar vulnerabilidade")
+    print("6. Consultar vulnerabilidades por ID do ativo")
     print("7. Consultar ativo por ID")
     print("0. Sair")
 
@@ -26,24 +26,23 @@ while True:
         
     elif escolha == "3":
         print("Opção 3 selecionada: Atualizar ativo")
-        # Lógica para atualizar ativo
+        atualizar_ativo_por_fluxo()
+
     elif escolha == "4":
         print("Opção 4 selecionada: Excluir ativo")
-        # Lógica para excluir ativo
+        remover_ativo_por_fluxo()
+
     elif escolha == "5":
         print("Opção 5 selecionada: Cadastrar vulnerabilidade")
-        # Lógica para cadastrar vulnerabilidade
+        criar_vulnerabilidade_por_fluxo()
+
     elif escolha == "6":
-        print("Opção 6 selecionada: Listar vulnerabilidades")
+        print("Opção 6 selecionada: Consultar vulnerabilidades por ID do ativo")
+        exibir_vulnerabilidades_por_ativo()
 
     elif escolha == "7":
         print("Opção 7 selecionada: Consultar ativo por ID")
-        id_ativo = int(input("Digite o ID do ativo: "))
-        ativo = consultar_ativo_por_id(carregar_ativos(), id_ativo)
-        if ativo:
-            print(f"ID: {ativo['id']}, Tipo: {ativo['tipo']}, Descrição: {ativo['descricao']}, Localização: {ativo['localizacao']}, Responsável: {ativo['responsavel']}, Nome: {ativo['nome']}")
-        else:
-            print("Ativo não encontrado.")
+        exibir_ativo_por_id()
 
     elif escolha == "0":
         print("Saindo do sistema. Até logo!")
