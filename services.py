@@ -1,5 +1,7 @@
 from database import carregar_ativos, salvar_ativos, salvar_vulnerabilidades, carregar_vulnerabilidades
-from utils import ler_texto, ler_inteiro
+from utils import ler_texto, ler_inteiro, escolher_opcao_enum
+from models import TipoAtivo , Severidade, StatusTratamento
+
 
 def buscar_por_campo(lista, campo, valor):
     for item in lista:
@@ -33,7 +35,7 @@ def gerar_proximo_id(lista):
 
 def cadastrar_ativo():
     id_ativo = ler_inteiro("Digite o ID do ativo: ")
-    tipo_ativo = ler_texto("Digite o tipo do ativo: ")
+    tipo_ativo = escolher_opcao_enum(TipoAtivo, "Escolha o tipo do ativo: ")
     descricao_ativo = ler_texto("Digite a descrição do ativo: ")
     localizacao_ativo = ler_texto("Digite a localização do ativo: ")
     responsavel_ativo = ler_texto("Digite o responsável pelo ativo: ")
@@ -41,7 +43,7 @@ def cadastrar_ativo():
 
     ativo = {
         "id": id_ativo,
-        "tipo": tipo_ativo,
+        "tipo": tipo_ativo.name.capitalize(),
         "descricao": descricao_ativo,
         "localizacao": localizacao_ativo,
         "responsavel": responsavel_ativo,
@@ -178,17 +180,17 @@ def cadastrar_vulnerabilidade(ativos, id_ativo):
     vulnerabilidades = carregar_vulnerabilidades()
 
     tipo_vulnerabilidade = ler_texto("Digite o tipo da vulnerabilidade: ")
-    severidade_vulnerabilidade = ler_texto("Digite a severidade da vulnerabilidade: ")
+    severidade_vulnerabilidade = escolher_opcao_enum(Severidade, "Escolha a severidade da vulnerabilidade: ")
     descricao_vulnerabilidade = ler_texto("Digite a descrição da vulnerabilidade: ")
-    status_de_tratamento = ler_texto("Digite o status de tratamento da vulnerabilidade: ")
+    status_de_tratamento = escolher_opcao_enum(StatusTratamento, "Escolha o status de tratamento da vulnerabilidade: ")
 
     vulnerabilidade = {
         "id": gerar_proximo_id(vulnerabilidades),
         "ativo_id": id_ativo,
         "tipo": tipo_vulnerabilidade,
-        "severidade": severidade_vulnerabilidade,
+        "severidade": severidade_vulnerabilidade.name.capitalize(),
         "descricao": descricao_vulnerabilidade,
-        "status_de_tratamento": status_de_tratamento
+        "status_de_tratamento": status_de_tratamento.name.capitalize()
     }
 
     return vulnerabilidade
@@ -250,3 +252,19 @@ def exibir_vulnerabilidades_por_ativo():
 
     for vulnerabilidade in vulnerabilidades_do_ativo:
         exibir_vulnerabilidade(vulnerabilidade)
+
+
+def consultar_ativo_por_nome(ativos, nome_ativo):
+    return buscar_por_campo(ativos, "nome", nome_ativo)
+
+def exibir_ativo_por_nome():
+    ativos = carregar_ativos()
+    nome_ativo = ler_texto("Digite o nome do ativo: ")
+
+    ativo = consultar_ativo_por_nome(ativos, nome_ativo)
+
+    if ativo:
+        exibir_ativo(ativo)
+    else:
+        print("Ativo não encontrado.")
+

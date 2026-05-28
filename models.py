@@ -4,7 +4,7 @@ class TipoAtivo(Enum):
     NOTEBOOK = 1
     SERVIDOR = 2
     ROTEADOR = 3
-    IMPRESSORA = 4
+    IMPRESSORA = 4  
 
 
 class Severidade(Enum):
@@ -13,7 +13,7 @@ class Severidade(Enum):
     ALTA = 3
     CRITICA = 4
 
-class StatusVulnerabilidade(Enum):
+class StatusTratamento(Enum):
     ABERTA = 1
     EM_ANALISE = 2
     RESOLVIDA = 3

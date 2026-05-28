@@ -1,5 +1,5 @@
 from database import carregar_ativos
-from services import atualizar_ativo_por_fluxo, exibir_vulnerabilidades_por_ativo, criar_vulnerabilidade_por_fluxo, atualizar_ativo, criar_ativo, exibir_ativo_por_id, listar_ativos, consultar_ativo_por_id, remover_ativo, remover_ativo_por_fluxo
+from services import atualizar_ativo_por_fluxo, exibir_ativo_por_nome, exibir_vulnerabilidades_por_ativo, criar_vulnerabilidade_por_fluxo, atualizar_ativo, criar_ativo, exibir_ativo_por_id, listar_ativos, consultar_ativo_por_id, remover_ativo, remover_ativo_por_fluxo
 
 def exibição_menu():
     print("\n -- SISTEMA DE INVENTÁRIO --")
@@ -10,6 +10,7 @@ def exibição_menu():
     print("5. Cadastrar vulnerabilidade")
     print("6. Consultar vulnerabilidades por ID do ativo")
     print("7. Consultar ativo por ID")
+    print("8. Consultar ativo por nome")
     print("0. Sair")
 
 while True:
@@ -43,6 +44,10 @@ while True:
     elif escolha == "7":
         print("Opção 7 selecionada: Consultar ativo por ID")
         exibir_ativo_por_id()
+    
+    elif escolha == "8":
+        print("Opção 8 selecionada: Consultar ativo por nome")
+        exibir_ativo_por_nome()
 
     elif escolha == "0":
         print("Saindo do sistema. Até logo!")
