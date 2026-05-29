@@ -1,6 +1,3 @@
-from models import TipoAtivo , Severidade, StatusVulnerabilidade
-
-
 def ler_inteiro(mensagem):
     while True:
         try:

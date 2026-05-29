@@ -4,11 +4,13 @@ from models import TipoAtivo , Severidade, StatusTratamento
 
 
 def buscar_por_campo(lista, campo, valor):
-    for item in lista:
-        if item.get(campo) == valor:
-            return item
-    return None
+    indice = {
+        item[campo]: item
+        for item in lista
+        if campo in item
+    }
 
+    return indice.get(valor)
 
 def filtrar_por_campo(lista, campo, valor):
     resultado = []
@@ -43,7 +45,7 @@ def cadastrar_ativo():
 
     ativo = {
         "id": id_ativo,
-        "tipo": tipo_ativo.name.capitalize(),
+        "tipo": tipo_ativo.name,
         "descricao": descricao_ativo,
         "localizacao": localizacao_ativo,
         "responsavel": responsavel_ativo,
@@ -75,6 +77,10 @@ def listar_ativos(ativos):
 
     for ativo in ativos:
         exibir_ativo(ativo)
+
+def listar_ativos_por_fluxo():
+    ativos = carregar_ativos()
+    listar_ativos(ativos)
 
 
 def exibir_ativo(ativo):
@@ -188,9 +194,9 @@ def cadastrar_vulnerabilidade(ativos, id_ativo):
         "id": gerar_proximo_id(vulnerabilidades),
         "ativo_id": id_ativo,
         "tipo": tipo_vulnerabilidade,
-        "severidade": severidade_vulnerabilidade.name.capitalize(),
+        "severidade": severidade_vulnerabilidade.name,
         "descricao": descricao_vulnerabilidade,
-        "status_de_tratamento": status_de_tratamento.name.capitalize()
+        "status_de_tratamento": status_de_tratamento.name,
     }
 
     return vulnerabilidade
