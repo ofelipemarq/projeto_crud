@@ -1,3 +1,6 @@
+
+
+
 def ler_inteiro(mensagem):
     while True:
         try:
