@@ -1,46 +1,44 @@
 # Sistema de Inventário de Segurança
 
-Projeto desenvolvido para a disciplina de Cibersegurança da UFU.
+Projeto desenvolvido para a disciplina de Cibersegurança.
 
 ## Objetivo
 
-Desenvolver um sistema CRUD em Python para gerenciamento de ativos de TI e vulnerabilidades de segurança, utilizando persistência em arquivos JSON, menu textual e organização modular do código.
+Este projeto tem como objetivo implementar um sistema CRUD em Python para gerenciamento de ativos de TI e vulnerabilidades de segurança associadas a esses ativos.
 
-O sistema permite cadastrar, consultar, atualizar e remover ativos de TI, além de registrar vulnerabilidades associadas a cada ativo.
+O sistema permite cadastrar, consultar, atualizar e remover ativos, além de cadastrar e visualizar vulnerabilidades vinculadas a um ativo específico.
+
+Os dados são persistidos em arquivos JSON, funcionando como uma base de dados simples em arquivo texto.
 
 ---
 
 ## Funcionalidades
 
-### Ativos de TI
+### Gerenciamento de ativos
 
-- Cadastrar ativos
-- Listar todos os ativos
+- Cadastrar ativo de TI
+- Listar ativos cadastrados
 - Consultar ativo por ID
 - Consultar ativo por nome
 - Atualizar informações de um ativo
 - Remover ativo
-- Remover automaticamente as vulnerabilidades associadas ao ativo excluído
-- Impedir cadastro de ativo com ID duplicado
+- Impedir cadastro de ativos com ID duplicado
+- Remover automaticamente as vulnerabilidades associadas ao ativo removido
 
-### Vulnerabilidades
+### Gerenciamento de vulnerabilidades
 
 - Cadastrar vulnerabilidade associada a um ativo existente
 - Gerar ID automático para cada vulnerabilidade
-- Consultar vulnerabilidades por ID do ativo
+- Consultar vulnerabilidades associadas a um ativo
 - Informar quando um ativo não possui vulnerabilidades cadastradas
-- Associar vulnerabilidades aos ativos usando o campo `ativo_id`
+- Impedir cadastro de vulnerabilidade para ativo inexistente
 
-### Validações e organização
+### Validações
 
-- Tratamento de entrada inválida para números inteiros
+- Tratamento de entradas numéricas inválidas
 - Validação de campos de texto vazios
-- Uso de `Enum` para padronizar:
-  - Tipo de ativo
-  - Severidade da vulnerabilidade
-  - Status de tratamento
-- Uso de dicionários e funções genéricas para busca e filtro
-- Persistência dos dados em arquivos JSON
+- Uso de opções padronizadas com `Enum`
+- Verificação de existência de ativos antes de atualizar, remover ou cadastrar vulnerabilidades
 
 ---
 
@@ -48,7 +46,8 @@ O sistema permite cadastrar, consultar, atualizar e remover ativos de TI, além 
 
 - Python 3
 - JSON
-- Git e GitHub
+- Git
+- GitHub
 
 ---
 
@@ -66,4 +65,4 @@ projeto_crud/
 │
 └── data/
     ├── ativos.json
-    └── vulnerabilidades.json
+    └── vulnerabilidades.json '''

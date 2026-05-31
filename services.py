@@ -124,13 +124,21 @@ def atualizar_ativo(ativos, id_ativo):
         "(tipo, descricao, localizacao, responsavel, nome): "
     )
 
-    if alteracao in ativo and alteracao != "id":
+    if alteracao == "tipo":
+        novo_valor = escolher_opcao_enum(TipoAtivo, "Escolha o novo tipo do ativo: ")
+        ativo[alteracao] = novo_valor.name
+
+    elif alteracao in ativo and alteracao != "id":
         novo_valor = ler_texto(f"Digite o novo valor para {alteracao}: ")
         ativo[alteracao] = novo_valor
-        salvar_ativos(ativos)
-        print("Ativo atualizado com sucesso!")
+
     else:
         print("Campo inválido.")
+        return
+
+    salvar_ativos(ativos)
+    print("Ativo atualizado com sucesso!")
+
 
 
 def atualizar_ativo_por_fluxo():
@@ -176,19 +184,26 @@ def remover_ativo_por_fluxo():
     remover_ativo(ativos, id_ativo)
 
 
-def cadastrar_vulnerabilidade(ativos, id_ativo):
+def cadastrar_vulnerabilidade(ativos, id_ativo, vulnerabilidades):
     ativo = consultar_ativo_por_id(ativos, id_ativo)
 
     if not ativo:
         print("Ativo não encontrado.")
         return None
 
-    vulnerabilidades = carregar_vulnerabilidades()
-
     tipo_vulnerabilidade = ler_texto("Digite o tipo da vulnerabilidade: ")
-    severidade_vulnerabilidade = escolher_opcao_enum(Severidade, "Escolha a severidade da vulnerabilidade: ")
+
+    severidade_vulnerabilidade = escolher_opcao_enum(
+        Severidade,
+        "Escolha a severidade da vulnerabilidade: "
+    )
+
     descricao_vulnerabilidade = ler_texto("Digite a descrição da vulnerabilidade: ")
-    status_de_tratamento = escolher_opcao_enum(StatusTratamento, "Escolha o status de tratamento da vulnerabilidade: ")
+
+    status_de_tratamento = escolher_opcao_enum(
+        StatusTratamento,
+        "Escolha o status de tratamento da vulnerabilidade: "
+    )
 
     vulnerabilidade = {
         "id": gerar_proximo_id(vulnerabilidades),
@@ -204,7 +219,12 @@ def cadastrar_vulnerabilidade(ativos, id_ativo):
 
 def criar_vulnerabilidade(ativos, id_ativo):
     vulnerabilidades = carregar_vulnerabilidades()
-    nova_vulnerabilidade = cadastrar_vulnerabilidade(ativos, id_ativo)
+    
+    nova_vulnerabilidade = cadastrar_vulnerabilidade(
+        ativos,
+        id_ativo,
+        vulnerabilidades
+    )
 
     if nova_vulnerabilidade:
         vulnerabilidades.append(nova_vulnerabilidade)

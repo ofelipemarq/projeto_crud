@@ -1,7 +1,6 @@
-from database import carregar_ativos
-from services import atualizar_ativo_por_fluxo, exibir_ativo_por_nome, exibir_vulnerabilidades_por_ativo, criar_vulnerabilidade_por_fluxo, criar_ativo, exibir_ativo_por_id, listar_ativos, listar_ativos_por_fluxo, remover_ativo_por_fluxo
+from services import atualizar_ativo_por_fluxo, exibir_ativo_por_nome, exibir_vulnerabilidades_por_ativo, criar_vulnerabilidade_por_fluxo, criar_ativo, exibir_ativo_por_id, listar_ativos_por_fluxo, remover_ativo_por_fluxo
 
-def exibição_menu():
+def exibir_menu():
     print("\n -- SISTEMA DE INVENTÁRIO --")
     print("1. Cadastrar ativo")
     print("2. Listar ativos")
@@ -14,7 +13,7 @@ def exibição_menu():
     print("0. Sair")
 
 while True:
-    exibição_menu()
+    exibir_menu()
     escolha = input("Escolha uma opção: ")
 
     if escolha == "1":
