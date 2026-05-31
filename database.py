@@ -1,4 +1,12 @@
 import json
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = BASE_DIR / "data"
+
+CAMINHO_ATIVOS = BASE_DIR / "ativos.json"
+CAMINHO_VULNERABILIDADES = BASE_DIR / "vulnerabilidades.json"
+
 
 def carregar_json(caminho):
     with open(caminho, "r", encoding="utf-8") as arquivo:
@@ -11,14 +19,14 @@ def salvar_json(caminho, dados):
 
 
 def carregar_ativos():
-    return carregar_json("/home/fmarques/Documentos/projeto_crud/data/ativos.json")
+    return carregar_json(CAMINHO_ATIVOS)
 
 def salvar_ativos(ativos):
-    salvar_json("/home/fmarques/Documentos/projeto_crud/data/ativos.json", ativos)
+    salvar_json(CAMINHO_ATIVOS, ativos)
 
 def carregar_vulnerabilidades():
-    return carregar_json("/home/fmarques/Documentos/projeto_crud/data/vulnerabilidades.json")
+    return carregar_json(CAMINHO_VULNERABILIDADES)
 
 def salvar_vulnerabilidades(vulnerabilidades):
-    salvar_json("/home/fmarques/Documentos/projeto_crud/data/vulnerabilidades.json", vulnerabilidades)
+    salvar_json(CAMINHO_VULNERABILIDADES, vulnerabilidades)
 

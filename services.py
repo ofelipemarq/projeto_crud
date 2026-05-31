@@ -1,12 +1,16 @@
 from database import carregar_ativos, salvar_ativos, salvar_vulnerabilidades, carregar_vulnerabilidades
-from utils import ler_texto, ler_inteiro
+from utils import ler_texto, ler_inteiro, escolher_opcao_enum
+from models import TipoAtivo , Severidade, StatusTratamento
+
 
 def buscar_por_campo(lista, campo, valor):
-    for item in lista:
-        if item.get(campo) == valor:
-            return item
-    return None
+    indice = {
+        item[campo]: item
+        for item in lista
+        if campo in item
+    }
 
+    return indice.get(valor)
 
 def filtrar_por_campo(lista, campo, valor):
     resultado = []
@@ -33,7 +37,7 @@ def gerar_proximo_id(lista):
 
 def cadastrar_ativo():
     id_ativo = ler_inteiro("Digite o ID do ativo: ")
-    tipo_ativo = ler_texto("Digite o tipo do ativo: ")
+    tipo_ativo = escolher_opcao_enum(TipoAtivo, "Escolha o tipo do ativo: ")
     descricao_ativo = ler_texto("Digite a descrição do ativo: ")
     localizacao_ativo = ler_texto("Digite a localização do ativo: ")
     responsavel_ativo = ler_texto("Digite o responsável pelo ativo: ")
@@ -41,7 +45,7 @@ def cadastrar_ativo():
 
     ativo = {
         "id": id_ativo,
-        "tipo": tipo_ativo,
+        "tipo": tipo_ativo.name,
         "descricao": descricao_ativo,
         "localizacao": localizacao_ativo,
         "responsavel": responsavel_ativo,
@@ -73,6 +77,10 @@ def listar_ativos(ativos):
 
     for ativo in ativos:
         exibir_ativo(ativo)
+
+def listar_ativos_por_fluxo():
+    ativos = carregar_ativos()
+    listar_ativos(ativos)
 
 
 def exibir_ativo(ativo):
@@ -116,13 +124,21 @@ def atualizar_ativo(ativos, id_ativo):
         "(tipo, descricao, localizacao, responsavel, nome): "
     )
 
-    if alteracao in ativo and alteracao != "id":
+    if alteracao == "tipo":
+        novo_valor = escolher_opcao_enum(TipoAtivo, "Escolha o novo tipo do ativo: ")
+        ativo[alteracao] = novo_valor.name
+
+    elif alteracao in ativo and alteracao != "id":
         novo_valor = ler_texto(f"Digite o novo valor para {alteracao}: ")
         ativo[alteracao] = novo_valor
-        salvar_ativos(ativos)
-        print("Ativo atualizado com sucesso!")
+
     else:
         print("Campo inválido.")
+        return
+
+    salvar_ativos(ativos)
+    print("Ativo atualizado com sucesso!")
+
 
 
 def atualizar_ativo_por_fluxo():
@@ -168,27 +184,34 @@ def remover_ativo_por_fluxo():
     remover_ativo(ativos, id_ativo)
 
 
-def cadastrar_vulnerabilidade(ativos, id_ativo):
+def cadastrar_vulnerabilidade(ativos, id_ativo, vulnerabilidades):
     ativo = consultar_ativo_por_id(ativos, id_ativo)
 
     if not ativo:
         print("Ativo não encontrado.")
         return None
 
-    vulnerabilidades = carregar_vulnerabilidades()
-
     tipo_vulnerabilidade = ler_texto("Digite o tipo da vulnerabilidade: ")
-    severidade_vulnerabilidade = ler_texto("Digite a severidade da vulnerabilidade: ")
+
+    severidade_vulnerabilidade = escolher_opcao_enum(
+        Severidade,
+        "Escolha a severidade da vulnerabilidade: "
+    )
+
     descricao_vulnerabilidade = ler_texto("Digite a descrição da vulnerabilidade: ")
-    status_de_tratamento = ler_texto("Digite o status de tratamento da vulnerabilidade: ")
+
+    status_de_tratamento = escolher_opcao_enum(
+        StatusTratamento,
+        "Escolha o status de tratamento da vulnerabilidade: "
+    )
 
     vulnerabilidade = {
         "id": gerar_proximo_id(vulnerabilidades),
         "ativo_id": id_ativo,
         "tipo": tipo_vulnerabilidade,
-        "severidade": severidade_vulnerabilidade,
+        "severidade": severidade_vulnerabilidade.name,
         "descricao": descricao_vulnerabilidade,
-        "status_de_tratamento": status_de_tratamento
+        "status_de_tratamento": status_de_tratamento.name,
     }
 
     return vulnerabilidade
@@ -196,7 +219,12 @@ def cadastrar_vulnerabilidade(ativos, id_ativo):
 
 def criar_vulnerabilidade(ativos, id_ativo):
     vulnerabilidades = carregar_vulnerabilidades()
-    nova_vulnerabilidade = cadastrar_vulnerabilidade(ativos, id_ativo)
+    
+    nova_vulnerabilidade = cadastrar_vulnerabilidade(
+        ativos,
+        id_ativo,
+        vulnerabilidades
+    )
 
     if nova_vulnerabilidade:
         vulnerabilidades.append(nova_vulnerabilidade)
@@ -250,3 +278,19 @@ def exibir_vulnerabilidades_por_ativo():
 
     for vulnerabilidade in vulnerabilidades_do_ativo:
         exibir_vulnerabilidade(vulnerabilidade)
+
+
+def consultar_ativo_por_nome(ativos, nome_ativo):
+    return buscar_por_campo(ativos, "nome", nome_ativo)
+
+def exibir_ativo_por_nome():
+    ativos = carregar_ativos()
+    nome_ativo = ler_texto("Digite o nome do ativo: ")
+
+    ativo = consultar_ativo_por_nome(ativos, nome_ativo)
+
+    if ativo:
+        exibir_ativo(ativo)
+    else:
+        print("Ativo não encontrado.")
+
