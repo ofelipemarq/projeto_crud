@@ -65,4 +65,5 @@ projeto_crud/
 │
 └── data/
     ├── ativos.json
-    └── vulnerabilidades.json '''
+    └── vulnerabilidades.json
+```
