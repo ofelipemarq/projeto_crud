@@ -1,4 +1,6 @@
-from services import atualizar_ativo_por_fluxo, exibir_ativo_por_nome, exibir_vulnerabilidades_por_ativo, criar_vulnerabilidade_por_fluxo, criar_ativo, exibir_ativo_por_id, listar_ativos_por_fluxo, remover_ativo_por_fluxo
+from services import AtivoServicos
+from utils import ler_inteiro
+ativo_servicos = AtivoServicos()
 
 def exibir_menu():
     print("\n -- SISTEMA DE INVENTÁRIO --")
@@ -18,35 +20,35 @@ while True:
 
     if escolha == "1":
         print("Opção 1 selecionada: Cadastrar ativo")
-        criar_ativo()
+        ativo_servicos.cadastrar_ativo()
 
     elif escolha == "2":
         print("Opção 2 selecionada: Listar ativos")
-        listar_ativos_por_fluxo()
-        
+        ativo_servicos.listar_ativos()
+
     elif escolha == "3":
         print("Opção 3 selecionada: Atualizar ativo")
-        atualizar_ativo_por_fluxo()
+        ativo_servicos.atualizar_ativo(id_ativo=ler_inteiro("Digite o ID do ativo a ser atualizado: "))
 
     elif escolha == "4":
         print("Opção 4 selecionada: Excluir ativo")
-        remover_ativo_por_fluxo()
+        ativo_servicos.remover_ativo(id_ativo=ler_inteiro("Digite o ID do ativo a ser removido: "))
 
     elif escolha == "5":
         print("Opção 5 selecionada: Cadastrar vulnerabilidade")
-        criar_vulnerabilidade_por_fluxo()
+       
 
     elif escolha == "6":
         print("Opção 6 selecionada: Consultar vulnerabilidades por ID do ativo")
-        exibir_vulnerabilidades_por_ativo()
+        
 
     elif escolha == "7":
         print("Opção 7 selecionada: Consultar ativo por ID")
-        exibir_ativo_por_id()
+       
     
     elif escolha == "8":
         print("Opção 8 selecionada: Consultar ativo por nome")
-        exibir_ativo_por_nome()
+       
 
     elif escolha == "0":
         print("Saindo do sistema. Até logo!")
