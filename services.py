@@ -1,23 +1,20 @@
 from database import carregar_ativos, salvar_ativos, salvar_vulnerabilidades, carregar_vulnerabilidades
 from utils import ler_texto, ler_inteiro, escolher_opcao_enum
-from models import TipoAtivo , Severidade, StatusTratamento
+from models import TipoAtivo , Severidade, StatusTratamento, criar_equipamento
 
 
-def buscar_por_campo(lista, campo, valor):
-    indice = {
-        item[campo]: item
-        for item in lista
-        if campo in item
-    }
+def buscar_por_campo(objetos, campo, valor):
+    for objeto in objetos:
+        if getattr(objeto, campo) == valor:
+            return objeto
+    return None
 
-    return indice.get(valor)
-
-def filtrar_por_campo(lista, campo, valor):
+def filtrar_por_campo(objetos, campo, valor):
     resultado = []
 
-    for item in lista:
-        if item.get(campo) == valor:
-            resultado.append(item)
+    for objeto in objetos:
+        if getattr(objeto, campo) == valor:
+            resultado.append(objeto)
 
     return resultado
 
@@ -29,141 +26,103 @@ def gerar_proximo_id(lista):
     maior_id = 0
 
     for item in lista:
-        if item["id"] > maior_id:
-            maior_id = item["id"]
+        if item.id > maior_id:
+            maior_id = item.id
 
     return maior_id + 1
 
 
-class Ativo:
-    def __init__(self, id, nome, tipo, descricao, responsavel, localizacao):
-        self.id = id
-        self.nome = nome
-        self.tipo = tipo
-        self.descricao = descricao
-        self.responsavel = responsavel
-        self.localizacao = localizacao
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "nome": self.nome,
-            "tipo": self.tipo.name,
-            "descricao": self.descricao,
-            "responsavel": self.responsavel,
-            "localizacao": self.localizacao
-        }
 
 class AtivoServicos:
 
-    def cadastrar_ativo(self):
+    def cadastrar_ativo(self, nome, descricao, responsavel, localizacao, tipo):
         ativos = carregar_ativos()
+        novo_id = gerar_proximo_id(ativos)
 
-        nome_ativo = ler_texto("Digite o nome do ativo: ")
-
-        tipo_ativo = escolher_opcao_enum(
-            TipoAtivo,
-            "Escolha o tipo do ativo: "
+        novo_ativo = criar_equipamento(
+            tipo=tipo,
+            id=novo_id,
+            nome=nome,
+            descricao=descricao,
+            responsavel=responsavel,
+            localizacao=localizacao
         )
-
-        descricao_ativo = ler_texto("Digite a descrição do ativo: ")
-        responsavel_ativo = ler_texto("Digite o responsável pelo ativo: ")
-        localizacao_ativo = ler_texto("Digite a localização do ativo: ")
-
-        novo_ativo = Ativo(
-            id=gerar_proximo_id(ativos),
-            nome=nome_ativo,
-            tipo=tipo_ativo,
-            descricao=descricao_ativo,
-            responsavel=responsavel_ativo,
-            localizacao=localizacao_ativo
-        )
-        ativos.append(novo_ativo.to_dict())
+        ativos.append(novo_ativo)
         salvar_ativos(ativos)
 
-        print("Ativo cadastrado com sucesso!")
+        return novo_ativo
+    
+    def exibir_ativo(self, ativo):
+        print(f"ID: {ativo.id}")
+        print(f"Nome: {ativo.nome}")
+        print(f"Descrição: {ativo.descricao}")
+        print(f"Responsável: {ativo.responsavel}")
+        print(f"Localização: {ativo.localizacao}")
+        print(f"Tipo: {ativo.tipo.name}")
 
     def listar_ativos(self):
         ativos = carregar_ativos()
-
-        if not ativos:
+        if ativos:
+            print("Lista de Ativos:")
+            for ativo in ativos:
+                self.exibir_ativo(ativo)
+                print("-" * 20)
+        else:
             print("Nenhum ativo cadastrado.")
-            return
-
-        print("\nLista de Ativos:")
-        print("-" * 50)
-
-        for ativo in ativos:
-            self.exibir_ativo(ativo)
-
-    def exibir_ativo(self, ativo):
-        print(f"ID: {ativo['id']}")
-        print(f"Nome: {ativo['nome']}")
-        print(f"Tipo: {ativo['tipo']}")
-        print(f"Descrição: {ativo['descricao']}")
-        print(f"Responsável: {ativo['responsavel']}")
-        print(f"Localização: {ativo['localizacao']}")
-        print("-" * 50)
-
-    def consultar_ativo_por_id(self, ativos, id_ativo):
-        return buscar_por_campo(ativos, "id", id_ativo)
-
-    def atualizar_ativo(self, id_ativo):
+        
+    def consultar_ativo_por_nome(self, nome_ativo):
         ativos = carregar_ativos()
-        ativo = self.consultar_ativo_por_id(ativos, id_ativo)
+        return buscar_por_campo(ativos, "nome", nome_ativo)
 
-        if not ativo:
-            print("Ativo não encontrado.")
-            return
+    def consultar_ativo_por_id(self, id_ativo):
+        ativos = carregar_ativos()
+        return buscar_por_campo(ativos, "id", id_ativo)
+    
+    def atualizar_ativo(
+        self, 
+        id_ativo, 
+        nome=None, 
+        descricao=None, 
+        responsavel=None, 
+        localizacao=None
+        ):
 
-        print("Atualizando informações do ativo:")
-        print("-" * 50)
+        ativos = carregar_ativos()
+        ativo_encontrado = None
+        
+        for ativo in ativos:
+            if ativo.id == id_ativo:
+                ativo_encontrado = ativo
+                break
 
-        nome_ativo = ler_texto(f"Digite o novo nome do ativo (atual: {ativo['nome']}): ")
-        tipo_ativo = escolher_opcao_enum(
-            TipoAtivo,
-            f"Escolha o novo tipo do ativo (atual: {ativo['tipo']}): "
+        if ativo_encontrado is None:
+            return False
+
+        ativo_encontrado.atualizar(
+            nome=nome,
+            descricao=descricao,
+            responsavel=responsavel,
+            localizacao=localizacao
         )
-        descricao_ativo = ler_texto(f"Digite a nova descrição do ativo (atual: {ativo['descricao']}): ")
-        responsavel_ativo = ler_texto(f"Digite o novo responsável pelo ativo (atual: {ativo['responsavel']}): ")
-        localizacao_ativo = ler_texto(f"Digite a nova localização do ativo (atual: {ativo['localizacao']}): ")
-
-        ativo['nome'] = nome_ativo
-        ativo['tipo'] = tipo_ativo.name
-        ativo['descricao'] = descricao_ativo
-        ativo['responsavel'] = responsavel_ativo
-        ativo['localizacao'] = localizacao_ativo
 
         salvar_ativos(ativos)
-        print("Ativo atualizado com sucesso!")
+        return True
+    
 
     def remover_ativo(self, id_ativo):
         ativos = carregar_ativos()
-        ativo = self.consultar_ativo_por_id(ativos, id_ativo)
+        
+        for indice, ativo in enumerate(ativos):
+            if ativo.id == id_ativo:
+                del ativos[indice]
+                salvar_ativos(ativos)
 
-        if not ativo:
-            print("Ativo não encontrado.")
-            return
-
-        ativos.remove(ativo)
-        salvar_ativos(ativos)
-        print("Ativo removido com sucesso!")
-
+                return True
+            
+        return False
+    
 class VulnerabilidadeServicos:
     pass
 
-
-def consultar_ativo_por_nome(ativos, nome_ativo):
-    return buscar_por_campo(ativos, "nome", nome_ativo)
-
-def exibir_ativo_por_nome():
-    ativos = carregar_ativos()
-    nome_ativo = ler_texto("Digite o nome do ativo: ")
-
-    ativo = consultar_ativo_por_nome(ativos, nome_ativo)
-
-    if ativo:
-        exibir_ativo(ativo)
-    else:
-        print("Ativo não encontrado.")
 
