@@ -1,0 +1,10 @@
+services:
+  projeto_crud:
+    build: .
+    container_name: projeto_crud
+    image: projeto_crud:latest
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
