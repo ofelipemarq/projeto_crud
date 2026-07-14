@@ -1,6 +1,6 @@
 from database import carregar_ativos, salvar_ativos, salvar_vulnerabilidades, carregar_vulnerabilidades
 from utils import ler_texto, ler_inteiro, escolher_opcao_enum
-from models import TipoAtivo , Severidade, StatusTratamento, criar_equipamento
+from models import TipoAtivo , Severidade, StatusTratamento, Vulnerabilidade, criar_equipamento
 
 
 def buscar_por_campo(objetos, campo, valor):
@@ -112,17 +112,136 @@ class AtivoServicos:
 
     def remover_ativo(self, id_ativo):
         ativos = carregar_ativos()
-        
+
         for indice, ativo in enumerate(ativos):
             if ativo.id == id_ativo:
                 del ativos[indice]
                 salvar_ativos(ativos)
 
+                vulnerabilidades = carregar_vulnerabilidades()
+                vulnerabilidades_restantes = []
+
+                for vulnerabilidade in vulnerabilidades:
+                    if vulnerabilidade.ativo_id != id_ativo:
+                        vulnerabilidades_restantes.append(
+                            vulnerabilidade
+                        )
+
+                salvar_vulnerabilidades(
+                    vulnerabilidades_restantes
+                )
+
                 return True
-            
+
         return False
     
 class VulnerabilidadeServicos:
-    pass
+    
+    def cadastrar_vulnerabilidade(
+        self, 
+        ativo_id, 
+        tipo, 
+        descricao, 
+        severidade, 
+        status_tratamento
+    ):
+        
+        ativos = carregar_ativos()
+        ativo_encontrado = buscar_por_campo(ativos, "id", ativo_id)
+        if ativo_encontrado is None:
+            raise ValueError("Ativo não encontrado para o ID fornecido.")
+        
+        vulnerabilidades = carregar_vulnerabilidades()
+        novo_id = gerar_proximo_id(vulnerabilidades)
 
+        nova_vulnerabilidade = Vulnerabilidade(
+            id=novo_id,
+            ativo_id=ativo_id,
+            tipo=tipo,
+            descricao=descricao,
+            severidade=severidade,
+            status_tratamento=status_tratamento
+        )
+        vulnerabilidades.append(nova_vulnerabilidade)
+        salvar_vulnerabilidades(vulnerabilidades)
 
+        return nova_vulnerabilidade
+    
+    def exibir_vulnerabilidade(self, vulnerabilidade):
+        print(f"ID: {vulnerabilidade.id}")
+        print(f"Ativo ID: {vulnerabilidade.ativo_id}")
+        print(f"Tipo: {vulnerabilidade.tipo}")
+        print(f"Descrição: {vulnerabilidade.descricao}")
+        print(f"Severidade: {vulnerabilidade.severidade.name}")
+        print(f"Status de Tratamento: {vulnerabilidade.status_tratamento.name}")
+
+    def listar_vulnerabilidades(self):
+        vulnerabilidades = carregar_vulnerabilidades()
+        if vulnerabilidades:
+            print("Lista de Vulnerabilidades:")
+            for vulnerabilidade in vulnerabilidades:
+                self.exibir_vulnerabilidade(vulnerabilidade)
+                print("-" * 20)
+        else:
+            print("Nenhuma vulnerabilidade cadastrada.")
+
+    def consultar_vulnerabilidade_por_id(self, id_vulnerabilidade):
+        vulnerabilidades = carregar_vulnerabilidades()
+        return buscar_por_campo(vulnerabilidades, "id", id_vulnerabilidade)
+    
+    def consultar_vulnerabilidades_por_ativo_id(self, ativo_id):
+        vulnerabilidades = carregar_vulnerabilidades()
+        return filtrar_por_campo(vulnerabilidades, "ativo_id", ativo_id)
+    
+    def atualizar_vulnerabilidade(
+        self, 
+        id_vulnerabilidade, 
+        tipo=None, 
+        descricao=None, 
+        severidade=None, 
+        status_tratamento=None
+    ):
+        vulnerabilidades = carregar_vulnerabilidades()
+        vulnerabilidade_encontrada = None
+        
+        for vulnerabilidade in vulnerabilidades:
+            if vulnerabilidade.id == id_vulnerabilidade:
+                vulnerabilidade_encontrada = vulnerabilidade
+                break
+
+        if vulnerabilidade_encontrada is None:
+            return False
+
+        if tipo is not None:
+            vulnerabilidade_encontrada.tipo = tipo
+        if descricao is not None:
+            vulnerabilidade_encontrada.descricao = descricao
+        if severidade is not None:
+            vulnerabilidade_encontrada.severidade = severidade
+        if status_tratamento is not None:
+            vulnerabilidade_encontrada.alterar_status(status_tratamento)
+
+        salvar_vulnerabilidades(vulnerabilidades)
+        return True 
+    
+    def remover_vulnerabilidade_por_ativo_id(self, ativo_id):
+        vulnerabilidades = carregar_vulnerabilidades()
+
+        vulnerabilidades_restantes = []
+
+        for vulnerabilidade in vulnerabilidades:
+            if vulnerabilidade.ativo_id != ativo_id:
+                vulnerabilidades_restantes.append(
+                    vulnerabilidade
+                )
+
+        quantidade_removida = (
+            len(vulnerabilidades)
+            - len(vulnerabilidades_restantes)
+        )
+
+        salvar_vulnerabilidades(
+            vulnerabilidades_restantes
+        )
+
+        return quantidade_removida

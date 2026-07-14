@@ -1,10 +1,10 @@
 [
     {
         "id": 1,
-        "nome": "b",
+        "nome": "Notebook Teste",
         "tipo": "NOTEBOOK",
-        "descricao": "bbb",
-        "responsavel": "bbbbb",
-        "localizacao": "232"
+        "descricao": "Teste de persistência",
+        "responsavel": "Felipe",
+        "localizacao": "Sala 1"
     }
 ]
