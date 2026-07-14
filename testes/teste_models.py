@@ -1,4 +1,7 @@
-from models import (
+from 
+
+from models import Severidade, StatusTratamento, TipoAtivo, criar_equipamento, equipamento_from_dict
+import modelsmodels import (
     TipoAtivo,
     Severidade,
     StatusTratamento,

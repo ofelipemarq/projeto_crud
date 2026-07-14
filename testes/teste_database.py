@@ -4,11 +4,14 @@ from database import (
 )
 
 from models import (
-    Notebook
+    Notebook,
+    TipoAtivo,
+    criar_equipamento
 )
 
 
-ativo = Notebook(
+ativo = criar_equipamento(
+    tipo=TipoAtivo.NOTEBOOK,
     id=1,
     nome="Notebook Teste",
     descricao="Teste de persistência",
