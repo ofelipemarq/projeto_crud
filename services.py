@@ -1,6 +1,5 @@
 from database import carregar_ativos, salvar_ativos, salvar_vulnerabilidades, carregar_vulnerabilidades
-from utils import ler_texto, ler_inteiro, escolher_opcao_enum
-from models import TipoAtivo , Severidade, StatusTratamento, Vulnerabilidade, criar_equipamento
+from models import Vulnerabilidade, criar_equipamento
 
 
 def buscar_por_campo(objetos, campo, valor):
@@ -53,23 +52,8 @@ class AtivoServicos:
 
         return novo_ativo
     
-    def exibir_ativo(self, ativo):
-        print(f"ID: {ativo.id}")
-        print(f"Nome: {ativo.nome}")
-        print(f"Descrição: {ativo.descricao}")
-        print(f"Responsável: {ativo.responsavel}")
-        print(f"Localização: {ativo.localizacao}")
-        print(f"Tipo: {ativo.tipo.name}")
-
     def listar_ativos(self):
-        ativos = carregar_ativos()
-        if ativos:
-            print("Lista de Ativos:")
-            for ativo in ativos:
-                self.exibir_ativo(ativo)
-                print("-" * 20)
-        else:
-            print("Nenhum ativo cadastrado.")
+        return carregar_ativos()
         
     def consultar_ativo_por_nome(self, nome_ativo):
         ativos = carregar_ativos()
@@ -85,29 +69,48 @@ class AtivoServicos:
         nome=None, 
         descricao=None, 
         responsavel=None, 
-        localizacao=None
+        localizacao=None,
+        tipo=None
         ):
 
         ativos = carregar_ativos()
-        ativo_encontrado = None
-        
-        for ativo in ativos:
+
+        for indice, ativo in enumerate(ativos):
             if ativo.id == id_ativo:
-                ativo_encontrado = ativo
-                break
+                if tipo is None:
+                    ativo.atualizar(
+                        nome=nome,
+                        descricao=descricao,
+                        responsavel=responsavel,
+                        localizacao=localizacao
+                    )
+                else:
+                    ativo_atualizado = criar_equipamento(
+                        tipo=tipo,
+                        id=ativo.id,
+                        nome=nome if nome is not None else ativo.nome,
+                        descricao=(
+                            descricao
+                            if descricao is not None
+                            else ativo.descricao
+                        ),
+                        responsavel=(
+                            responsavel
+                            if responsavel is not None
+                            else ativo.responsavel
+                        ),
+                        localizacao=(
+                            localizacao
+                            if localizacao is not None
+                            else ativo.localizacao
+                        )
+                    )
+                    ativos[indice] = ativo_atualizado
 
-        if ativo_encontrado is None:
-            return False
+                salvar_ativos(ativos)
+                return True
 
-        ativo_encontrado.atualizar(
-            nome=nome,
-            descricao=descricao,
-            responsavel=responsavel,
-            localizacao=localizacao
-        )
-
-        salvar_ativos(ativos)
-        return True
+        return False
     
 
     def remover_ativo(self, id_ativo):
@@ -167,23 +170,8 @@ class VulnerabilidadeServicos:
 
         return nova_vulnerabilidade
     
-    def exibir_vulnerabilidade(self, vulnerabilidade):
-        print(f"ID: {vulnerabilidade.id}")
-        print(f"Ativo ID: {vulnerabilidade.ativo_id}")
-        print(f"Tipo: {vulnerabilidade.tipo}")
-        print(f"Descrição: {vulnerabilidade.descricao}")
-        print(f"Severidade: {vulnerabilidade.severidade.name}")
-        print(f"Status de Tratamento: {vulnerabilidade.status_tratamento.name}")
-
     def listar_vulnerabilidades(self):
-        vulnerabilidades = carregar_vulnerabilidades()
-        if vulnerabilidades:
-            print("Lista de Vulnerabilidades:")
-            for vulnerabilidade in vulnerabilidades:
-                self.exibir_vulnerabilidade(vulnerabilidade)
-                print("-" * 20)
-        else:
-            print("Nenhuma vulnerabilidade cadastrada.")
+        return carregar_vulnerabilidades()
 
     def consultar_vulnerabilidade_por_id(self, id_vulnerabilidade):
         vulnerabilidades = carregar_vulnerabilidades()

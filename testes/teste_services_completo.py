@@ -1,506 +1,191 @@
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+import database
 from models import (
-    TipoAtivo,
     Severidade,
-    StatusTratamento
+    Servidor,
+    StatusTratamento,
+    TipoAtivo
 )
-
-from services import (
-    AtivoServicos,
-    VulnerabilidadeServicos
-)
-
-
-ativo_servicos = AtivoServicos()
-vulnerabilidade_servicos = VulnerabilidadeServicos()
-
-
-print("\n=== TESTE 1: CADASTRAR ATIVOS ===")
-
-ativo_1 = ativo_servicos.cadastrar_ativo(
-    nome="Servidor Principal",
-    descricao="Servidor usado pela aplicação",
-    responsavel="Felipe",
-    localizacao="Datacenter",
-    tipo=TipoAtivo.SERVIDOR
-)
-
-print(f"Ativo criado com ID: {ativo_1.id}")
-print(f"Classe criada: {type(ativo_1).__name__}")
-
-
-ativo_2 = ativo_servicos.cadastrar_ativo(
-    nome="Notebook Administrativo",
-    descricao="Notebook da equipe administrativa",
-    responsavel="Ana",
-    localizacao="Sala 2",
-    tipo=TipoAtivo.NOTEBOOK
-)
-
-print(f"Ativo criado com ID: {ativo_2.id}")
-print(f"Classe criada: {type(ativo_2).__name__}")
-
-
-print("\n=== TESTE 2: CONSULTAR ATIVO POR ID ===")
-
-ativo_encontrado = ativo_servicos.consultar_ativo_por_id(
-    ativo_1.id
-)
-
-if ativo_encontrado is not None:
-    print("Ativo encontrado:")
-    ativo_servicos.exibir_ativo(ativo_encontrado)
-else:
-    print("ERRO: ativo não encontrado.")
-
-
-print("\n=== TESTE 3: CONSULTAR ATIVO POR NOME ===")
-
-ativo_encontrado = ativo_servicos.consultar_ativo_por_nome(
-    "Notebook Administrativo"
-)
-
-if ativo_encontrado is not None:
-    print("Ativo encontrado:")
-    ativo_servicos.exibir_ativo(ativo_encontrado)
-else:
-    print("ERRO: ativo não encontrado.")
-
-
-print("\n=== TESTE 4: ATUALIZAR ATIVO ===")
-
-resultado_atualizacao = ativo_servicos.atualizar_ativo(
-    id_ativo=ativo_1.id,
-    responsavel="Carlos",
-    localizacao="Datacenter 2"
-)
-
-print(f"Atualização realizada: {resultado_atualizacao}")
-
-ativo_atualizado = ativo_servicos.consultar_ativo_por_id(
-    ativo_1.id
-)
-
-if ativo_atualizado is not None:
-    ativo_servicos.exibir_ativo(ativo_atualizado)
-
-
-print("\n=== TESTE 5: CADASTRAR VULNERABILIDADES ===")
-
-vulnerabilidade_1 = (
-    vulnerabilidade_servicos.cadastrar_vulnerabilidade(
-        ativo_id=ativo_1.id,
-        tipo="Software desatualizado",
-        descricao="Sistema operacional sem atualizações recentes",
-        severidade=Severidade.ALTA,
-        status_tratamento=StatusTratamento.ABERTA
-    )
-)
-
-print(
-    "Vulnerabilidade criada com ID: "
-    f"{vulnerabilidade_1.id}"
-)
-
-
-vulnerabilidade_2 = (
-    vulnerabilidade_servicos.cadastrar_vulnerabilidade(
-        ativo_id=ativo_1.id,
-        tipo="Senha fraca",
-        descricao="Conta administrativa usa senha fraca",
-        severidade=Severidade.CRITICA,
-        status_tratamento=StatusTratamento.EM_ANALISE
-    )
-)
-
-print(
-    "Vulnerabilidade criada com ID: "
-    f"{vulnerabilidade_2.id}"
-)
-
-
-vulnerabilidade_3 = (
-    vulnerabilidade_servicos.cadastrar_vulnerabilidade(
-        ativo_id=ativo_2.id,
-        tipo="Antivírus desatualizado",
-        descricao="Antivírus precisa ser atualizado",
-        severidade=Severidade.MEDIA,
-        status_tratamento=StatusTratamento.ABERTA
-    )
-)
-
-print(
-    "Vulnerabilidade criada com ID: "
-    f"{vulnerabilidade_3.id}"
-)
-
-
-print("\n=== TESTE 6: CONSULTAR VULNERABILIDADES POR ATIVO ===")
-
-vulnerabilidades_servidor = (
-    vulnerabilidade_servicos
-    .consultar_vulnerabilidades_por_ativo_id(
-        ativo_1.id
-    )
-)
-
-print(
-    "Quantidade encontrada: "
-    f"{len(vulnerabilidades_servidor)}"
-)
-
-for vulnerabilidade in vulnerabilidades_servidor:
-    vulnerabilidade_servicos.exibir_vulnerabilidade(
-        vulnerabilidade
-    )
-    print("-" * 20)
-
-
-print("\n=== TESTE 7: ATUALIZAR VULNERABILIDADE ===")
-
-resultado_atualizacao = (
-    vulnerabilidade_servicos.atualizar_vulnerabilidade(
-        id_vulnerabilidade=vulnerabilidade_1.id,
-        severidade=Severidade.CRITICA,
-        status_tratamento=StatusTratamento.RESOLVIDA
-    )
-)
-
-print(
-    "Atualização realizada: "
-    f"{resultado_atualizacao}"
-)
-
-vulnerabilidade_atualizada = (
-    vulnerabilidade_servicos
-    .consultar_vulnerabilidade_por_id(
-        vulnerabilidade_1.id
-    )
-)
-
-if vulnerabilidade_atualizada is not None:
-    vulnerabilidade_servicos.exibir_vulnerabilidade(
-        vulnerabilidade_atualizada
-    )
-
-
-print("\n=== TESTE 8: ATIVO INEXISTENTE ===")
-
-try:
-    vulnerabilidade_servicos.cadastrar_vulnerabilidade(
-        ativo_id=999999,
-        tipo="Teste inválido",
-        descricao="Este cadastro não deve acontecer",
-        severidade=Severidade.BAIXA,
-        status_tratamento=StatusTratamento.ABERTA
-    )
-
-    print("ERRO: vulnerabilidade foi cadastrada indevidamente.")
-
-except ValueError as erro:
-    print(f"Erro esperado capturado: {erro}")
-
-
-print("\n=== TESTE 9: REMOÇÃO EM CASCATA ===")
-
-resultado_remocao = ativo_servicos.remover_ativo(
-    ativo_1.id
-)
-
-print(f"Ativo removido: {resultado_remocao}")
-
-ativo_removido = ativo_servicos.consultar_ativo_por_id(
-    ativo_1.id
-)
-
-vulnerabilidades_restantes = (
-    vulnerabilidade_servicos
-    .consultar_vulnerabilidades_por_ativo_id(
-        ativo_1.id
-    )
-)
-
-print(f"Consulta do ativo removido: {ativo_removido}")
-
-print(
-    "Vulnerabilidades restantes do ativo removido: "
-    f"{len(vulnerabilidades_restantes)}"
-)
-
-
-print("\n=== TESTE 10: PRESERVAR OUTROS ATIVOS ===")
-
-ativo_2_ainda_existe = (
-    ativo_servicos.consultar_ativo_por_id(
-        ativo_2.id
-    )
-)
-
-vulnerabilidades_ativo_2 = (
-    vulnerabilidade_servicos
-    .consultar_vulnerabilidades_por_ativo_id(
-        ativo_2.id
-    )
-)
-
-print(
-    "Segundo ativo ainda existe: "
-    f"{ativo_2_ainda_existe is not None}"
-)
-
-print(
-    "Vulnerabilidades do segundo ativo: "
-    f"{len(vulnerabilidades_ativo_2)}"
-)
-
-
-print("\n=== FIM DOS TESTES ===")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+from services import AtivoServicos, VulnerabilidadeServicos
+
+
+class TesteServicesCompleto(unittest.TestCase):
+    def setUp(self):
+        self.diretorio = tempfile.TemporaryDirectory()
+        raiz = Path(self.diretorio.name)
+        self.caminho_ativos = raiz / "ativos.json"
+        self.caminho_vulnerabilidades = raiz / "vulnerabilidades.json"
+
+        self.patch_ativos = patch.object(
+            database,
+            "CAMINHO_ATIVOS",
+            self.caminho_ativos
+        )
+        self.patch_vulnerabilidades = patch.object(
+            database,
+            "CAMINHO_VULNERABILIDADES",
+            self.caminho_vulnerabilidades
+        )
+        self.patch_ativos.start()
+        self.patch_vulnerabilidades.start()
+        database.salvar_json(self.caminho_ativos, [])
+        database.salvar_json(self.caminho_vulnerabilidades, [])
+
+        self.ativos = AtivoServicos()
+        self.vulnerabilidades = VulnerabilidadeServicos()
+
+    def tearDown(self):
+        self.patch_ativos.stop()
+        self.patch_vulnerabilidades.stop()
+        self.diretorio.cleanup()
+
+    def cadastrar_ativo(self, nome, tipo):
+        return self.ativos.cadastrar_ativo(
+            nome=nome,
+            descricao="Descrição inicial",
+            responsavel="Felipe",
+            localizacao="Sala 1",
+            tipo=tipo
+        )
+
+    def cadastrar_vulnerabilidade(self, ativo_id, tipo="Falha inicial"):
+        return self.vulnerabilidades.cadastrar_vulnerabilidade(
+            ativo_id=ativo_id,
+            tipo=tipo,
+            descricao="Descrição inicial",
+            severidade=Severidade.MEDIA,
+            status_tratamento=StatusTratamento.ABERTA
+        )
+
+    def test_fluxo_completo_de_ativos_e_atualizacao_de_tipo(self):
+        notebook = self.cadastrar_ativo(
+            "Notebook Financeiro",
+            TipoAtivo.NOTEBOOK
+        )
+        servidor = self.cadastrar_ativo(
+            "Servidor Principal",
+            TipoAtivo.SERVIDOR
+        )
+
+        self.assertEqual(len(self.ativos.listar_ativos()), 2)
+        self.assertEqual(
+            self.ativos.consultar_ativo_por_id(notebook.id).nome,
+            "Notebook Financeiro"
+        )
+        self.assertEqual(
+            self.ativos.consultar_ativo_por_nome("Servidor Principal").id,
+            servidor.id
+        )
+
+        self.assertTrue(
+            self.ativos.atualizar_ativo(notebook.id, nome="Servidor Financeiro")
+        )
+        self.assertTrue(
+            self.ativos.atualizar_ativo(notebook.id, descricao="Nova descrição")
+        )
+        self.assertTrue(
+            self.ativos.atualizar_ativo(notebook.id, responsavel="Ana")
+        )
+        self.assertTrue(
+            self.ativos.atualizar_ativo(notebook.id, localizacao="Datacenter")
+        )
+        self.assertTrue(
+            self.ativos.atualizar_ativo(notebook.id, tipo=TipoAtivo.SERVIDOR)
+        )
+
+        atualizado = self.ativos.consultar_ativo_por_id(notebook.id)
+        self.assertIsInstance(atualizado, Servidor)
+        self.assertEqual(atualizado.id, notebook.id)
+        self.assertEqual(atualizado.nome, "Servidor Financeiro")
+        self.assertEqual(atualizado.descricao, "Nova descrição")
+        self.assertEqual(atualizado.responsavel, "Ana")
+        self.assertEqual(atualizado.localizacao, "Datacenter")
+
+        dados_json = database.carregar_json(self.caminho_ativos)
+        self.assertEqual(dados_json[0]["tipo"], "SERVIDOR")
+        recarregado = database.carregar_ativos()[0]
+        self.assertIsInstance(recarregado, Servidor)
+        self.assertEqual(recarregado.id, notebook.id)
+
+    def test_fluxo_completo_de_vulnerabilidade(self):
+        ativo = self.cadastrar_ativo("Servidor", TipoAtivo.SERVIDOR)
+        vulnerabilidade = self.cadastrar_vulnerabilidade(ativo.id)
+
+        with self.assertRaisesRegex(ValueError, "Ativo não encontrado"):
+            self.cadastrar_vulnerabilidade(999)
+
+        self.assertEqual(
+            self.vulnerabilidades.consultar_vulnerabilidade_por_id(
+                vulnerabilidade.id
+            ).id,
+            vulnerabilidade.id
+        )
+        self.assertEqual(len(self.vulnerabilidades.listar_vulnerabilidades()), 1)
+        self.assertEqual(
+            len(
+                self.vulnerabilidades
+                .consultar_vulnerabilidades_por_ativo_id(ativo.id)
+            ),
+            1
+        )
+
+        self.assertTrue(
+            self.vulnerabilidades.atualizar_vulnerabilidade(
+                vulnerabilidade.id,
+                tipo="Falha atualizada"
+            )
+        )
+        self.assertTrue(
+            self.vulnerabilidades.atualizar_vulnerabilidade(
+                vulnerabilidade.id,
+                descricao="Descrição atualizada"
+            )
+        )
+        self.assertTrue(
+            self.vulnerabilidades.atualizar_vulnerabilidade(
+                vulnerabilidade.id,
+                severidade=Severidade.CRITICA
+            )
+        )
+        self.assertTrue(
+            self.vulnerabilidades.atualizar_vulnerabilidade(
+                vulnerabilidade.id,
+                status_tratamento=StatusTratamento.RESOLVIDA
+            )
+        )
+
+        recarregada = database.carregar_vulnerabilidades()[0]
+        self.assertEqual(recarregada.tipo, "Falha atualizada")
+        self.assertEqual(recarregada.descricao, "Descrição atualizada")
+        self.assertEqual(recarregada.severidade, Severidade.CRITICA)
+        self.assertEqual(
+            recarregada.status_tratamento,
+            StatusTratamento.RESOLVIDA
+        )
+
+    def test_remocao_em_cascata_preserva_outros_dados(self):
+        ativo_a = self.cadastrar_ativo("Ativo A", TipoAtivo.NOTEBOOK)
+        ativo_b = self.cadastrar_ativo("Ativo B", TipoAtivo.SERVIDOR)
+        vulnerabilidade_1 = self.cadastrar_vulnerabilidade(ativo_a.id, "Falha 1")
+        vulnerabilidade_2 = self.cadastrar_vulnerabilidade(ativo_a.id, "Falha 2")
+        vulnerabilidade_3 = self.cadastrar_vulnerabilidade(ativo_b.id, "Falha 3")
+
+        self.assertTrue(self.ativos.remover_ativo(ativo_a.id))
+
+        self.assertIsNone(self.ativos.consultar_ativo_por_id(ativo_a.id))
+        self.assertIsNotNone(self.ativos.consultar_ativo_por_id(ativo_b.id))
+        ids_restantes = [
+            item.id
+            for item in self.vulnerabilidades.listar_vulnerabilidades()
+        ]
+        self.assertNotIn(vulnerabilidade_1.id, ids_restantes)
+        self.assertNotIn(vulnerabilidade_2.id, ids_restantes)
+        self.assertIn(vulnerabilidade_3.id, ids_restantes)
+
+
+if __name__ == "__main__":
+    unittest.main()

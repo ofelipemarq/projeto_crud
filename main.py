@@ -31,6 +31,27 @@ def exibir_menu():
     print("0. Sair")
 
 
+def exibir_ativo(ativo):
+    print(f"ID: {ativo.id}")
+    print(f"Nome: {ativo.nome}")
+    print(f"Descrição: {ativo.descricao}")
+    print(f"Responsável: {ativo.responsavel}")
+    print(f"Localização: {ativo.localizacao}")
+    print(f"Tipo: {ativo.tipo.name}")
+
+
+def exibir_vulnerabilidade(vulnerabilidade):
+    print(f"ID: {vulnerabilidade.id}")
+    print(f"Ativo ID: {vulnerabilidade.ativo_id}")
+    print(f"Tipo: {vulnerabilidade.tipo}")
+    print(f"Descrição: {vulnerabilidade.descricao}")
+    print(f"Severidade: {vulnerabilidade.severidade.name}")
+    print(
+        "Status de Tratamento: "
+        f"{vulnerabilidade.status_tratamento.name}"
+    )
+
+
 def fluxo_cadastrar_ativo():
     print("\n=== CADASTRAR ATIVO ===")
 
@@ -64,7 +85,16 @@ def fluxo_listar_ativos():
     print("\n=== LISTAR ATIVOS ===")
 
     ativo_servicos = AtivoServicos()
-    ativo_servicos.listar_ativos()
+    ativos = ativo_servicos.listar_ativos()
+
+    if not ativos:
+        print("Nenhum ativo cadastrado.")
+        return
+
+    print("Lista de Ativos:")
+    for ativo in ativos:
+        exibir_ativo(ativo)
+        print("-" * 20)
 
 
 def fluxo_consultar_ativo_por_id():
@@ -81,7 +111,7 @@ def fluxo_consultar_ativo_por_id():
     )
 
     if ativo:
-        ativo_servicos.exibir_ativo(ativo)
+        exibir_ativo(ativo)
     else:
         print("Ativo não encontrado.")
 
@@ -100,7 +130,7 @@ def fluxo_consultar_ativo_por_nome():
     )
 
     if ativo:
-        ativo_servicos.exibir_ativo(ativo)
+        exibir_ativo(ativo)
     else:
         print("Ativo não encontrado.")
 
@@ -122,13 +152,14 @@ def fluxo_atualizar_ativo():
         print("Ativo não encontrado.")
         return
 
-    ativo_servicos.exibir_ativo(ativo)
+    exibir_ativo(ativo)
 
     print("\nQual campo deseja atualizar?")
     print("1. Nome")
     print("2. Descrição")
     print("3. Responsável")
     print("4. Localização")
+    print("5. Tipo")
 
     opcao = ler_inteiro(
         "Escolha uma opção: "
@@ -172,6 +203,17 @@ def fluxo_atualizar_ativo():
         resultado = ativo_servicos.atualizar_ativo(
             id_ativo=id_ativo,
             localizacao=nova_localizacao
+        )
+
+    elif opcao == 5:
+        novo_tipo = escolher_opcao_enum(
+            TipoAtivo,
+            "Escolha o novo tipo:"
+        )
+
+        resultado = ativo_servicos.atualizar_ativo(
+            id_ativo=id_ativo,
+            tipo=novo_tipo
         )
 
     else:
@@ -289,7 +331,18 @@ def fluxo_listar_vulnerabilidades():
         VulnerabilidadeServicos()
     )
 
-    vulnerabilidade_servicos.listar_vulnerabilidades()
+    vulnerabilidades = (
+        vulnerabilidade_servicos.listar_vulnerabilidades()
+    )
+
+    if not vulnerabilidades:
+        print("Nenhuma vulnerabilidade cadastrada.")
+        return
+
+    print("Lista de Vulnerabilidades:")
+    for vulnerabilidade in vulnerabilidades:
+        exibir_vulnerabilidade(vulnerabilidade)
+        print("-" * 20)
 
 
 def fluxo_consultar_vulnerabilidades_por_ativo():
@@ -321,10 +374,7 @@ def fluxo_consultar_vulnerabilidades_por_ativo():
         return
 
     for vulnerabilidade in vulnerabilidades:
-        vulnerabilidade_servicos.exibir_vulnerabilidade(
-            vulnerabilidade
-        )
-
+        exibir_vulnerabilidade(vulnerabilidade)
         print("-" * 20)
 
 
@@ -351,9 +401,7 @@ def fluxo_atualizar_vulnerabilidade():
         print("Vulnerabilidade não encontrada.")
         return
 
-    vulnerabilidade_servicos.exibir_vulnerabilidade(
-        vulnerabilidade
-    )
+    exibir_vulnerabilidade(vulnerabilidade)
 
     print("\nQual campo deseja atualizar?")
     print("1. Tipo")
