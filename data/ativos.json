@@ -1,1 +1,10 @@
-[]
+[
+    {
+        "id": 1,
+        "nome": "Notebook Teste",
+        "tipo": "NOTEBOOK",
+        "descricao": "Teste de persistência",
+        "responsavel": "Felipe",
+        "localizacao": "Sala 1"
+    }
+]

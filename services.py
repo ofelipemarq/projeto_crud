@@ -1,23 +1,19 @@
 from database import carregar_ativos, salvar_ativos, salvar_vulnerabilidades, carregar_vulnerabilidades
-from utils import ler_texto, ler_inteiro, escolher_opcao_enum
-from models import TipoAtivo , Severidade, StatusTratamento
+from models import Vulnerabilidade, criar_equipamento
 
 
-def buscar_por_campo(lista, campo, valor):
-    indice = {
-        item[campo]: item
-        for item in lista
-        if campo in item
-    }
+def buscar_por_campo(objetos, campo, valor):
+    for objeto in objetos:
+        if getattr(objeto, campo) == valor:
+            return objeto
+    return None
 
-    return indice.get(valor)
-
-def filtrar_por_campo(lista, campo, valor):
+def filtrar_por_campo(objetos, campo, valor):
     resultado = []
 
-    for item in lista:
-        if item.get(campo) == valor:
-            resultado.append(item)
+    for objeto in objetos:
+        if getattr(objeto, campo) == valor:
+            resultado.append(objeto)
 
     return resultado
 
@@ -29,268 +25,211 @@ def gerar_proximo_id(lista):
     maior_id = 0
 
     for item in lista:
-        if item["id"] > maior_id:
-            maior_id = item["id"]
+        if item.id > maior_id:
+            maior_id = item.id
 
     return maior_id + 1
 
 
-def cadastrar_ativo():
-    id_ativo = ler_inteiro("Digite o ID do ativo: ")
-    tipo_ativo = escolher_opcao_enum(TipoAtivo, "Escolha o tipo do ativo: ")
-    descricao_ativo = ler_texto("Digite a descrição do ativo: ")
-    localizacao_ativo = ler_texto("Digite a localização do ativo: ")
-    responsavel_ativo = ler_texto("Digite o responsável pelo ativo: ")
-    nome_ativo = ler_texto("Digite o nome do ativo: ")
-
-    ativo = {
-        "id": id_ativo,
-        "tipo": tipo_ativo.name,
-        "descricao": descricao_ativo,
-        "localizacao": localizacao_ativo,
-        "responsavel": responsavel_ativo,
-        "nome": nome_ativo
-    }
-
-    return ativo
 
 
-def criar_ativo():
-    ativos = carregar_ativos()
-    novo_ativo = cadastrar_ativo()
+class AtivoServicos:
 
-    ativo_existente = consultar_ativo_por_id(ativos, novo_ativo["id"])
-    if ativo_existente:
-        print("Já existe um ativo com este ID. Por favor, escolha um ID diferente.")
-        return
+    def cadastrar_ativo(self, nome, descricao, responsavel, localizacao, tipo):
+        ativos = carregar_ativos()
+        novo_id = gerar_proximo_id(ativos)
 
-    ativos.append(novo_ativo)
-    salvar_ativos(ativos)
-
-    print("Ativo cadastrado com sucesso!")
-
-
-def listar_ativos(ativos):
-    if not ativos:
-        print("Nenhum ativo cadastrado.")
-        return
-
-    for ativo in ativos:
-        exibir_ativo(ativo)
-
-def listar_ativos_por_fluxo():
-    ativos = carregar_ativos()
-    listar_ativos(ativos)
-
-
-def exibir_ativo(ativo):
-    print(
-        f"ID: {ativo['id']}, "
-        f"Tipo: {ativo['tipo']}, "
-        f"Descrição: {ativo['descricao']}, "
-        f"Localização: {ativo['localizacao']}, "
-        f"Responsável: {ativo['responsavel']}, "
-        f"Nome: {ativo['nome']}"
-    )
-
-
-def consultar_ativo_por_id(ativos, id_ativo):
-    return buscar_por_campo(ativos, "id", id_ativo)
-
-
-def exibir_ativo_por_id():
-    ativos = carregar_ativos()
-    id_ativo = ler_inteiro("Digite o ID do ativo: ")
-
-    ativo = consultar_ativo_por_id(ativos, id_ativo)
-
-    if ativo:
-        exibir_ativo(ativo)
-    else:
-        print("Ativo não encontrado.")
-
-
-def atualizar_ativo(ativos, id_ativo):
-    ativo = consultar_ativo_por_id(ativos, id_ativo)
-
-    if not ativo:
-        print("Ativo não encontrado.")
-        return
-
-    exibir_ativo(ativo)
-
-    alteracao = ler_texto(
-        "Digite o campo que deseja alterar "
-        "(tipo, descricao, localizacao, responsavel, nome): "
-    )
-
-    if alteracao == "tipo":
-        novo_valor = escolher_opcao_enum(TipoAtivo, "Escolha o novo tipo do ativo: ")
-        ativo[alteracao] = novo_valor.name
-
-    elif alteracao in ativo and alteracao != "id":
-        novo_valor = ler_texto(f"Digite o novo valor para {alteracao}: ")
-        ativo[alteracao] = novo_valor
-
-    else:
-        print("Campo inválido.")
-        return
-
-    salvar_ativos(ativos)
-    print("Ativo atualizado com sucesso!")
-
-
-
-def atualizar_ativo_por_fluxo():
-    ativos = carregar_ativos()
-    id_ativo = ler_inteiro("Digite o ID do ativo: ")
-
-    atualizar_ativo(ativos, id_ativo)
-
-
-def remover_ativo(ativos, id_ativo):
-    ativo = consultar_ativo_por_id(ativos, id_ativo)
-
-    if not ativo:
-        print("Ativo não encontrado.")
-        return
-
-    exibir_ativo(ativo)
-
-    confirmacao = ler_texto("Tem certeza que deseja excluir este ativo? (s/n): ")
-
-    if confirmacao.lower() == "s":
-        vulnerabilidades = carregar_vulnerabilidades()
-
-        vulnerabilidades_atualizadas = [
-            vulnerabilidade
-            for vulnerabilidade in vulnerabilidades
-            if vulnerabilidade["ativo_id"] != id_ativo
-        ]
-
-        ativos.remove(ativo)
+        novo_ativo = criar_equipamento(
+            tipo=tipo,
+            id=novo_id,
+            nome=nome,
+            descricao=descricao,
+            responsavel=responsavel,
+            localizacao=localizacao
+        )
+        ativos.append(novo_ativo)
         salvar_ativos(ativos)
-        salvar_vulnerabilidades(vulnerabilidades_atualizadas)
 
-        print("Ativo e suas vulnerabilidades associadas excluídos com sucesso!")
-    else:
-        print("Exclusão cancelada.")
-
-
-def remover_ativo_por_fluxo():
-    ativos = carregar_ativos()
-    id_ativo = ler_inteiro("Digite o ID do ativo: ")
-   
-    remover_ativo(ativos, id_ativo)
-
-
-def cadastrar_vulnerabilidade(ativos, id_ativo, vulnerabilidades):
-    ativo = consultar_ativo_por_id(ativos, id_ativo)
-
-    if not ativo:
-        print("Ativo não encontrado.")
-        return None
-
-    tipo_vulnerabilidade = ler_texto("Digite o tipo da vulnerabilidade: ")
-
-    severidade_vulnerabilidade = escolher_opcao_enum(
-        Severidade,
-        "Escolha a severidade da vulnerabilidade: "
-    )
-
-    descricao_vulnerabilidade = ler_texto("Digite a descrição da vulnerabilidade: ")
-
-    status_de_tratamento = escolher_opcao_enum(
-        StatusTratamento,
-        "Escolha o status de tratamento da vulnerabilidade: "
-    )
-
-    vulnerabilidade = {
-        "id": gerar_proximo_id(vulnerabilidades),
-        "ativo_id": id_ativo,
-        "tipo": tipo_vulnerabilidade,
-        "severidade": severidade_vulnerabilidade.name,
-        "descricao": descricao_vulnerabilidade,
-        "status_de_tratamento": status_de_tratamento.name,
-    }
-
-    return vulnerabilidade
-
-
-def criar_vulnerabilidade(ativos, id_ativo):
-    vulnerabilidades = carregar_vulnerabilidades()
+        return novo_ativo
     
-    nova_vulnerabilidade = cadastrar_vulnerabilidade(
-        ativos,
-        id_ativo,
-        vulnerabilidades
-    )
+    def listar_ativos(self):
+        return carregar_ativos()
+        
+    def consultar_ativo_por_nome(self, nome_ativo):
+        ativos = carregar_ativos()
+        return buscar_por_campo(ativos, "nome", nome_ativo)
 
-    if nova_vulnerabilidade:
+    def consultar_ativo_por_id(self, id_ativo):
+        ativos = carregar_ativos()
+        return buscar_por_campo(ativos, "id", id_ativo)
+    
+    def atualizar_ativo(
+        self, 
+        id_ativo, 
+        nome=None, 
+        descricao=None, 
+        responsavel=None, 
+        localizacao=None,
+        tipo=None
+        ):
+
+        ativos = carregar_ativos()
+
+        for indice, ativo in enumerate(ativos):
+            if ativo.id == id_ativo:
+                if tipo is None:
+                    ativo.atualizar(
+                        nome=nome,
+                        descricao=descricao,
+                        responsavel=responsavel,
+                        localizacao=localizacao
+                    )
+                else:
+                    ativo_atualizado = criar_equipamento(
+                        tipo=tipo,
+                        id=ativo.id,
+                        nome=nome if nome is not None else ativo.nome,
+                        descricao=(
+                            descricao
+                            if descricao is not None
+                            else ativo.descricao
+                        ),
+                        responsavel=(
+                            responsavel
+                            if responsavel is not None
+                            else ativo.responsavel
+                        ),
+                        localizacao=(
+                            localizacao
+                            if localizacao is not None
+                            else ativo.localizacao
+                        )
+                    )
+                    ativos[indice] = ativo_atualizado
+
+                salvar_ativos(ativos)
+                return True
+
+        return False
+    
+
+    def remover_ativo(self, id_ativo):
+        ativos = carregar_ativos()
+
+        for indice, ativo in enumerate(ativos):
+            if ativo.id == id_ativo:
+                del ativos[indice]
+                salvar_ativos(ativos)
+
+                vulnerabilidades = carregar_vulnerabilidades()
+                vulnerabilidades_restantes = []
+
+                for vulnerabilidade in vulnerabilidades:
+                    if vulnerabilidade.ativo_id != id_ativo:
+                        vulnerabilidades_restantes.append(
+                            vulnerabilidade
+                        )
+
+                salvar_vulnerabilidades(
+                    vulnerabilidades_restantes
+                )
+
+                return True
+
+        return False
+    
+class VulnerabilidadeServicos:
+    
+    def cadastrar_vulnerabilidade(
+        self, 
+        ativo_id, 
+        tipo, 
+        descricao, 
+        severidade, 
+        status_tratamento
+    ):
+        
+        ativos = carregar_ativos()
+        ativo_encontrado = buscar_por_campo(ativos, "id", ativo_id)
+        if ativo_encontrado is None:
+            raise ValueError("Ativo não encontrado para o ID fornecido.")
+        
+        vulnerabilidades = carregar_vulnerabilidades()
+        novo_id = gerar_proximo_id(vulnerabilidades)
+
+        nova_vulnerabilidade = Vulnerabilidade(
+            id=novo_id,
+            ativo_id=ativo_id,
+            tipo=tipo,
+            descricao=descricao,
+            severidade=severidade,
+            status_tratamento=status_tratamento
+        )
         vulnerabilidades.append(nova_vulnerabilidade)
         salvar_vulnerabilidades(vulnerabilidades)
-        print("Vulnerabilidade cadastrada com sucesso!")
 
+        return nova_vulnerabilidade
+    
+    def listar_vulnerabilidades(self):
+        return carregar_vulnerabilidades()
 
-def criar_vulnerabilidade_por_fluxo():
-    ativos = carregar_ativos()
-    id_ativo = ler_inteiro("Digite o ID do ativo: ")
+    def consultar_vulnerabilidade_por_id(self, id_vulnerabilidade):
+        vulnerabilidades = carregar_vulnerabilidades()
+        return buscar_por_campo(vulnerabilidades, "id", id_vulnerabilidade)
+    
+    def consultar_vulnerabilidades_por_ativo_id(self, ativo_id):
+        vulnerabilidades = carregar_vulnerabilidades()
+        return filtrar_por_campo(vulnerabilidades, "ativo_id", ativo_id)
+    
+    def atualizar_vulnerabilidade(
+        self, 
+        id_vulnerabilidade, 
+        tipo=None, 
+        descricao=None, 
+        severidade=None, 
+        status_tratamento=None
+    ):
+        vulnerabilidades = carregar_vulnerabilidades()
+        vulnerabilidade_encontrada = None
+        
+        for vulnerabilidade in vulnerabilidades:
+            if vulnerabilidade.id == id_vulnerabilidade:
+                vulnerabilidade_encontrada = vulnerabilidade
+                break
 
-    criar_vulnerabilidade(ativos, id_ativo)
+        if vulnerabilidade_encontrada is None:
+            return False
 
+        if tipo is not None:
+            vulnerabilidade_encontrada.tipo = tipo
+        if descricao is not None:
+            vulnerabilidade_encontrada.descricao = descricao
+        if severidade is not None:
+            vulnerabilidade_encontrada.severidade = severidade
+        if status_tratamento is not None:
+            vulnerabilidade_encontrada.alterar_status(status_tratamento)
 
-def consultar_vulnerabilidades_por_ativo(vulnerabilidades, id_ativo):
-    return filtrar_por_campo(vulnerabilidades, "ativo_id", id_ativo)
+        salvar_vulnerabilidades(vulnerabilidades)
+        return True 
+    
+    def remover_vulnerabilidade_por_ativo_id(self, ativo_id):
+        vulnerabilidades = carregar_vulnerabilidades()
 
+        vulnerabilidades_restantes = []
 
-def exibir_vulnerabilidade(vulnerabilidade):
-    print(f"ID: {vulnerabilidade['id']}")
-    print(f"Tipo: {vulnerabilidade['tipo']}")
-    print(f"Severidade: {vulnerabilidade['severidade']}")
-    print(f"Descrição: {vulnerabilidade['descricao']}")
-    print(f"Status: {vulnerabilidade['status_de_tratamento']}")
-    print("-" * 50)
+        for vulnerabilidade in vulnerabilidades:
+            if vulnerabilidade.ativo_id != ativo_id:
+                vulnerabilidades_restantes.append(
+                    vulnerabilidade
+                )
 
+        quantidade_removida = (
+            len(vulnerabilidades)
+            - len(vulnerabilidades_restantes)
+        )
 
-def exibir_vulnerabilidades_por_ativo():
-    ativos = carregar_ativos()
-    vulnerabilidades = carregar_vulnerabilidades()
+        salvar_vulnerabilidades(
+            vulnerabilidades_restantes
+        )
 
-    id_ativo = ler_inteiro("Digite o ID do ativo: ")
-
-    ativo = consultar_ativo_por_id(ativos, id_ativo)
-
-    if not ativo:
-        print("Ativo não encontrado.")
-        return
-
-    vulnerabilidades_do_ativo = consultar_vulnerabilidades_por_ativo(
-        vulnerabilidades,
-        id_ativo
-    )
-
-    print(f"\nVulnerabilidades associadas ao ativo {ativo['nome']} (ID {id_ativo}):")
-    print("-" * 50)
-
-    if not vulnerabilidades_do_ativo:
-        print("Este ativo está sem vulnerabilidades registradas.")
-        return
-
-    for vulnerabilidade in vulnerabilidades_do_ativo:
-        exibir_vulnerabilidade(vulnerabilidade)
-
-
-def consultar_ativo_por_nome(ativos, nome_ativo):
-    return buscar_por_campo(ativos, "nome", nome_ativo)
-
-def exibir_ativo_por_nome():
-    ativos = carregar_ativos()
-    nome_ativo = ler_texto("Digite o nome do ativo: ")
-
-    ativo = consultar_ativo_por_nome(ativos, nome_ativo)
-
-    if ativo:
-        exibir_ativo(ativo)
-    else:
-        print("Ativo não encontrado.")
-
+        return quantidade_removida

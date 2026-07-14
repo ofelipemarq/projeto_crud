@@ -4,7 +4,7 @@ Projeto desenvolvido para a disciplina de Cibersegurança.
 
 ## Objetivo
 
-Este projeto tem como objetivo implementar um sistema CRUD em Python para gerenciamento de ativos de TI e vulnerabilidades de segurança associadas a esses ativos.
+Sistema CRUD em Python para gerenciamento de ativos de TI e vulnerabilidades de segurança associadas a esses ativos.
 
 O sistema permite cadastrar, consultar, atualizar e remover ativos, além de cadastrar e visualizar vulnerabilidades vinculadas a um ativo específico.
 
@@ -21,15 +21,18 @@ Os dados são persistidos em arquivos JSON, funcionando como uma base de dados s
 - Consultar ativo por ID
 - Consultar ativo por nome
 - Atualizar informações de um ativo
+- Atualizar o tipo do ativo, preservando seu ID e os demais dados
 - Remover ativo
-- Impedir cadastro de ativos com ID duplicado
 - Remover automaticamente as vulnerabilidades associadas ao ativo removido
+- Gerar ID automático para cada ativo
 
 ### Gerenciamento de vulnerabilidades
 
 - Cadastrar vulnerabilidade associada a um ativo existente
 - Gerar ID automático para cada vulnerabilidade
+- Listar vulnerabilidades cadastradas
 - Consultar vulnerabilidades associadas a um ativo
+- Atualizar tipo, descrição, severidade e status de tratamento
 - Informar quando um ativo não possui vulnerabilidades cadastradas
 - Impedir cadastro de vulnerabilidade para ativo inexistente
 
@@ -66,4 +69,49 @@ projeto_crud/
 └── data/
     ├── ativos.json
     └── vulnerabilidades.json
+```
+
+## Arquitetura
+
+- `models.py`: contém as entidades e os Enums.
+- `database.py`: realiza a persistência nos arquivos JSON.
+- `services.py`: contém as regras de negócio.
+- `main.py`: contém o menu, as entradas e a exibição das mensagens.
+- `utils.py`: contém as validações das entradas.
+
+## Orientação a objetos
+
+`Equipamento` é a classe-base dos ativos. `Notebook`, `Servidor`, `Roteador`
+e `Impressora` herdam seus dados e comportamentos, mas cada subclasse possui
+um `TipoAtivo` diferente. O método `to_dict()` funciona com todas elas.
+
+`Vulnerabilidade` é uma entidade separada e se relaciona com um equipamento
+por meio do atributo `ativo_id`.
+
+## Persistência
+
+Antes de salvar, os objetos são convertidos para dicionários:
+
+```text
+objeto -> to_dict() -> JSON
+```
+
+Ao carregar, os dicionários são reconstruídos como objetos:
+
+```text
+JSON -> dicionário -> from_dict() -> objeto
+```
+
+Os arquivos continuam armazenando listas de objetos JSON.
+
+## Execução
+
+```bash
+python main.py
+```
+
+## Testes
+
+```bash
+python -m unittest discover -s testes -v
 ```
