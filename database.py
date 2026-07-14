@@ -13,15 +13,45 @@ CAMINHO_VULNERABILIDADES = BASE_DIR / "vulnerabilidades.json"
 
 
 def carregar_json(caminho):
-    with open(caminho, "r", encoding="utf-8") as arquivo:
+    caminho.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    if not caminho.exists():
+        salvar_json(caminho, [])
+        return []
+
+    if caminho.stat().st_size == 0:
+        salvar_json(caminho, [])
+        return []
+
+    with open(
+        caminho,
+        "r",
+        encoding="utf-8"
+    ) as arquivo:
         return json.load(arquivo)
 
 
 def salvar_json(caminho, dados):
-    with open(caminho, "w", encoding="utf-8") as arquivo:
-        json.dump(dados, arquivo, indent=4, ensure_ascii=False)
+    caminho.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-
+    with open(
+        caminho,
+        "w",
+        encoding="utf-8"
+    ) as arquivo:
+        json.dump(
+            dados,
+            arquivo,
+            indent=4,
+            ensure_ascii=False
+        )
+        
 def carregar_ativos():
     dados = carregar_json(CAMINHO_ATIVOS)
     ativos = []
