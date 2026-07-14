@@ -1,3 +1,7 @@
+from models import (
+    equipamento_from_dict,
+    vulnerabilidade_from_dict
+)
 import json
 from pathlib import Path
 
@@ -19,14 +23,29 @@ def salvar_json(caminho, dados):
 
 
 def carregar_ativos():
-    return carregar_json(CAMINHO_ATIVOS)
+    dados = carregar_json(CAMINHO_ATIVOS)
+    ativos = []
+    for item in dados:
+        ativo = equipamento_from_dict(item)
+        ativos.append(ativo)
+    return ativos
 
 def salvar_ativos(ativos):
-    salvar_json(CAMINHO_ATIVOS, ativos)
+    dados = []
+    for ativo in ativos:
+        dados.append(ativo.to_dict())
+    salvar_json(CAMINHO_ATIVOS, dados)
 
 def carregar_vulnerabilidades():
-    return carregar_json(CAMINHO_VULNERABILIDADES)
+    dados = carregar_json(CAMINHO_VULNERABILIDADES)
+    vulnerabilidades = []
+    for item in dados:
+        vulnerabilidade = vulnerabilidade_from_dict(item)
+        vulnerabilidades.append(vulnerabilidade)
+    return vulnerabilidades
 
 def salvar_vulnerabilidades(vulnerabilidades):
-    salvar_json(CAMINHO_VULNERABILIDADES, vulnerabilidades)
-
+    dados = []
+    for vulnerabilidade in vulnerabilidades:
+        dados.append(vulnerabilidade.to_dict())
+    salvar_json(CAMINHO_VULNERABILIDADES, dados)
